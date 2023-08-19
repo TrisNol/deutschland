@@ -87,32 +87,33 @@ class Bundesanzeiger:
     def __find_all_entries_on_page(self, page_content: str):
         soup = BeautifulSoup(page_content, "html.parser")
         wrapper = soup.find("div", {"class": "result_container"})
-        rows = wrapper.find_all("div", {"class": "row"})
-        for row in rows:
-            info_element = row.find("div", {"class": "info"})
-            if not info_element:
-                continue
+        if wrapper is not None:
+            rows = wrapper.find_all("div", {"class": "row"})
+            for row in rows:
+                info_element = row.find("div", {"class": "info"})
+                if not info_element:
+                    continue
 
-            link_element = info_element.find("a")
-            if not link_element:
-                continue
+                link_element = info_element.find("a")
+                if not link_element:
+                    continue
 
-            entry_link = link_element.get("href")
-            entry_name = link_element.contents[0].strip()
+                entry_link = link_element.get("href")
+                entry_name = link_element.contents[0].strip()
 
-            date_element = row.find("div", {"class": "date"})
-            if not date_element:
-                continue
+                date_element = row.find("div", {"class": "date"})
+                if not date_element:
+                    continue
 
-            date = dateparser.parse(date_element.contents[0], languages=["de"])
+                date = dateparser.parse(date_element.contents[0], languages=["de"])
 
-            company_name_element = row.find("div", {"class": "first"})
-            if not date_element:
-                continue
+                company_name_element = row.find("div", {"class": "first"})
+                if not date_element:
+                    continue
 
-            company_name = company_name_element.contents[0].strip()
+                company_name = company_name_element.contents[0].strip()
 
-            yield Report(date, entry_name, entry_link, company_name)
+                yield Report(date, entry_name, entry_link, company_name)
 
     def __generate_result(self, content: str):
         """iterate trough all results and try to fetch single reports"""
