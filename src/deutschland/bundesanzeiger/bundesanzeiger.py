@@ -122,16 +122,18 @@ class Bundesanzeiger:
 
             if self.__is_captcha_needed(get_element_response.text):
                 soup = BeautifulSoup(get_element_response.text, "html.parser")
-                captcha_image_src = soup.find("div", {"class": "captcha_wrapper"}).find(
-                    "img"
-                )["src"]
-                img_response = self.session.get(captcha_image_src)
-                captcha_result = self.captcha_callback(img_response.content)
-                captcha_endpoint_url = soup.find_all("form")[1]["action"]
-                get_element_response = self.session.post(
-                    captcha_endpoint_url,
-                    data={"solution": captcha_result, "confirm-button": "OK"},
-                )
+                captcha_wrapper = soup.find("div", {"class": "captcha_wrapper"})
+                if captcha_wrapper is not None:
+                    captcha_image_src = soup.find("div", {"class": "captcha_wrapper"}).find(
+                        "img"
+                    )["src"]
+                    img_response = self.session.get(captcha_image_src)
+                    captcha_result = self.captcha_callback(img_response.content)
+                    captcha_endpoint_url = soup.find_all("form")[1]["action"]
+                    get_element_response = self.session.post(
+                        captcha_endpoint_url,
+                        data={"solution": captcha_result, "confirm-button": "OK"},
+                    )
 
             content_soup = BeautifulSoup(get_element_response.text, "html.parser")
             content_element = content_soup.find(
